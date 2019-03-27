@@ -1,6 +1,6 @@
 #include "bsp.h"
 #include "timer.h"
-
+int x = 0;
 // exported global variables
 volatile int Button_Status = 0;
 
@@ -16,8 +16,25 @@ void BSP_Init(void)
 */
 void Signal_Pass(void)
 {
-    RED_OFF();
-	GREEN_ON();
+    printf("x=%d\n",x);
+	WALK_OFF();
+	if(x == CONSTANT){
+	int i;
+	for(i=0;i<3;i++){
+  WALK_ON();
+	Delay(10);
+	WALK_OFF();
+	Delay(10);
+	x = 0;
+	}
+}
+
+	
+	DONT_WALK_ON();
+	Delay(20);
+	RED_OFF();
+	Delay(5);
+	GREEN_ON();	
 }
 
 /** @brief  Change lamps to RED
@@ -25,8 +42,22 @@ void Signal_Pass(void)
 */
 void Signal_Block(void)
 {
-	YELLOW_OFF();
-	RED_ON();
+	GREEN_OFF();
+		Delay(5);
+		YELLOW_ON();
+		Delay(10);
+		YELLOW_OFF();
+		Delay(5);
+    RED_ON();
+		Delay(20);
+		DONT_WALK_OFF();
+		Delay(5);
+		
+		WALK_ON();
+		int Walktime = Walk_selected();
+		Delay(Walktime);
+		
+		x = CONSTANT;
 }
 
 /** @brief  Flash YELLOW lamp
@@ -34,11 +65,13 @@ void Signal_Block(void)
 */
 void Signal_Flash(void)
 {
+	RED_OFF();
 	GREEN_OFF();
-  YELLOW_ON();
-}
-void Signal_Walk(void)
-{
-	GREEN_OFF();
-  YELLOW_ON();
+	WALK_OFF();
+	DONT_WALK_OFF();
+	YELLOW_OFF();
+	YELLOW_ON();
+	Delay(5);
+	YELLOW_OFF();
+	Delay(5);
 }

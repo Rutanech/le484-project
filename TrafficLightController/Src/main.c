@@ -64,9 +64,10 @@ int fputc(int ch, FILE *f)
     return ITM_SendChar(ch);
 }
 
-Event_t Event_Detect()
-{
+Event_t Event_Detect(){
+	
     Event_t evt = NO_EVT;
+	if (OUT_OF_SERVICE() != SET){
 	if(Timeout_Status){
 		evt = TIMEOUT;
 		Timeout_Status = 0;
@@ -75,11 +76,30 @@ Event_t Event_Detect()
 		evt = BUTTON;
 		Button_Status = 0;
 	}
-	if (MIN_GREEN_TIME() == SET)
-{
-	evt = MODE_CHANGE;
+	}else{
+		evt = MODE_CHANGE;
+	}
+	return evt;
 }
-    return evt;
+
+int Green_selected(){
+	int TimeGreen = 0;
+	if (MIN_GREEN_TIME() == SET){
+		TimeGreen = 1200;
+	}else{
+		TimeGreen = 600;
+	}
+	return TimeGreen;
+}
+
+int Walk_selected() {
+	static int Walktime = 0;
+	if(WALK_INTERVAL() == SET){
+		Walktime = 200;
+	}else{
+		Walktime = 100;
+	}
+	return Walktime;
 }
 /* USER CODE END 0 */
 
@@ -191,10 +211,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(RED_LAMP_GPIO_Port, RED_LAMP_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, WALK_SYMBOL_Pin|DONT_WALK_SYMBOL_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, WALK_Pin|DONT_WALK_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : MODE_SW1_Pin MODE_SW2_Pin MODE_SW3_Pin */
-  GPIO_InitStruct.Pin = MODE_SW1_Pin|MODE_SW2_Pin|MODE_SW3_Pin;
+  /*Configure GPIO pins : MODE_SW_Pin MIN_GREEN_TIME_Pin WALK_INTERVAL_Pin */
+  GPIO_InitStruct.Pin = MODE_SW_Pin|MIN_GREEN_TIME_Pin|WALK_INTERVAL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -219,8 +239,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RED_LAMP_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : WALK_SYMBOL_Pin DONT_WALK_SYMBOL_Pin */
-  GPIO_InitStruct.Pin = WALK_SYMBOL_Pin|DONT_WALK_SYMBOL_Pin;
+  /*Configure GPIO pins : WALK_Pin DONT_WALK_Pin */
+  GPIO_InitStruct.Pin = WALK_Pin|DONT_WALK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
